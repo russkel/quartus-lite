@@ -6,41 +6,26 @@
 #       is around 13GB.
 #
 pkgname=quartus-lite
-pkgver=16.0.0.211
+pkgver=17.0.2.602
 pkgrel=1
 pkgdesc="Quartus Prime Lite Edition design software for Altera FPGA's. Modular package"
-arch=('i686' 'x86_64')
+arch=('x86_64')
 url="http://dl.altera.com/?edition=lite"
 license=('custom')
 
+# base version for when an update needs to be applied
+pkgverbase=17.0.0.595
+_build_nr_base="${pkgverbase##*.}"
 _build_nr="${pkgver##*.}"
 _alteradir="/opt/altera"
 
 # According to the installer script, these dependencies are needed for the installer
-if [[ $CARCH = i686 ]]
-then
-   depends=('desktop-file-utils' 'expat' 'fontconfig' 'freetype2'
+depends=('desktop-file-utils' 'expat' 'fontconfig' 'freetype2'
    'glibc' 'gtk2' 'libcanberra' 'libpng' 'libpng12' 'libice' 'libsm'
-   'util-linux' 'ncurses' 'tcl' 'tcllib' 'zlib' 'libx11' 'libxau'
+   'util-linux' 'ncurses' 'zlib' 'libx11' 'libxau'
    'libxdmcp' 'libxext' 'libxft' 'libxrender' 'libxt' 'libxtst')
-fi
 
-if [[ $CARCH = x86_64 ]]
-then
-   depends=('desktop-file-utils' 'expat' 'fontconfig' 'freetype2'
-   'glibc' 'gtk2' 'libcanberra' 'libpng' 'libpng12' 'libice' 'libsm'
-   'util-linux' 'ncurses' 'tcl' 'tcllib' 'zlib' 'libx11' 'libxau'
-   'libxdmcp' 'libxext' 'libxft' 'libxrender' 'libxt' 'libxtst'
-
-   'lib32-expat' 'lib32-fontconfig' 'lib32-freetype2' 'lib32-glibc'
-   'lib32-gtk2' 'lib32-libcanberra' 'lib32-libpng' 'lib32-libpng12'
-   'lib32-libice' 'lib32-libsm' 'lib32-util-linux' 'lib32-ncurses'
-   'lib32-zlib' 'lib32-libx11' 'lib32-libxau' 'lib32-libxdmcp'
-   'lib32-libxext' 'lib32-libxft' 'lib32-libxrender' 'lib32-libxt'
-   'lib32-libxtst')
-fi
-
-makedepends=('bash' 'upx')
+#makedepends=('bash')
 
 optdepends=('quartus-lite-max: MAXII, MAXV device support'
             'quartus-lite-max10: MAX10 device support'
@@ -51,15 +36,16 @@ optdepends=('quartus-lite-max: MAXII, MAXV device support'
            )
            # Pkgnames are taken directly from altera downloads file names
 
-source=("http://download.altera.com/akdlm/software/acdsinst/${pkgver%.*.*}/${_build_nr}/ib_installers/QuartusLiteSetup-${pkgver}-linux.run"
-	"quartus.sh" "quartus.desktop" "51-usbblaster.rules" "quartus.install")
-md5sums=('40e83bf5586ca027005728609214173a'
-         '067c444cae7fe31d3608245712b43ce8'
+source=("http://download.altera.com/akdlm/software/acdsinst/${pkgver%.*.*}std.2/${_build_nr}/update/QuartusSetup-${pkgver}-linux.run"
+  "http://download.altera.com/akdlm/software/acdsinst/${pkgverbase%.*.*}std/${_build_nr_base}/ib_installers/QuartusLiteSetup-${pkgverbase}-linux.run"
+	"quartus.desktop" "51-usbblaster.rules" "quartus.install")
+md5sums=('771248a8a8fc4b0e0d999f23f7c5fa90'
+         '454350830d7b0072396b5f0ded77e18b'
          '32b17cb8b992fc2dccd33d87f0dcd8ce'
          'f5744dc4820725b93917e3a24df13da9'
          'a331a81c44aed062a7af6d28542c3d82')
 
-options=('strip' 'upx') # Stripping and UPX will takes ages, I'd avoid it.
+#options=('strip' 'upx') # Stripping and UPX will takes ages, I'd avoid it.
 install='quartus.install'
 PKGEXT=".pkg.tar" # Do not compress
 
@@ -67,8 +53,8 @@ package() {
     cd "${srcdir}"
 
     # TODO: Make bogus $DISPLAY
-    chmod a+x "QuartusLiteSetup-${pkgver}-linux.run"
-    DISPLAY="" ./"QuartusLiteSetup-${pkgver}-linux.run" --mode unattended --unattendedmodeui none --installdir "${pkgdir}/${_alteradir}"
+    chmod a+x "QuartusLiteSetup-${pkgverbase}-linux.run"
+    DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --installdir "${pkgdir}/${_alteradir}"
 
     # Remove uninstaller and install logs since we have a working package management
     rm -r "${pkgdir}${_alteradir}/uninstall"
@@ -78,26 +64,21 @@ package() {
     # TODO: Split instead of removing
 
     # Nios2Eds - no comments on this abomination
-    rm -rf ${pkgdir}/${_alteradir}/nios2eds
-
+    #rm -rf ${pkgdir}/${_alteradir}/nios2eds
     # Altera IP cores - you probably don't want to use them anyway (see opencores)
-    rm -rf ${pkgdir}/${_alteradir}/ip
-
+    #rm -rf ${pkgdir}/${_alteradir}/ip
     # HLS (HLD) - high level synthesis
-    rm -rf ${pkgdir}/${_alteradir}/hld
-
+    #rm -rf ${pkgdir}/${_alteradir}/hld
     # Help (Nearly 1GiB)
     #rm -rf ${pkgdir}/${_alteradir}/quartus/common/help
 
     # Replace altera directory in integration files
-    sed -i.bak "s,_alteradir,$_alteradir,g" quartus.sh
     sed -i.bak "s,_alteradir,$_alteradir,g" quartus.desktop
 
     # Copy license file
     install -D -m644 "${pkgdir}${_alteradir}/licenses/license.txt" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
     # Install integration files
-    install -D -m755 quartus.sh "${pkgdir}/etc/profile.d/quartus.sh"
     install -D -m644 51-usbblaster.rules "${pkgdir}/etc/udev/rules.d/51-usbblaster.rules"
     install -D -m644 quartus.desktop "${pkgdir}/usr/share/applications/quartus.desktop"
 }
