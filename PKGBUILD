@@ -41,7 +41,7 @@ source=("http://download.altera.com/akdlm/software/acdsinst/${pkgver%.*.*}std.2/
 	"quartus.desktop" "51-usbblaster.rules" "quartus.install")
 md5sums=('771248a8a8fc4b0e0d999f23f7c5fa90'
          '454350830d7b0072396b5f0ded77e18b'
-         '32b17cb8b992fc2dccd33d87f0dcd8ce'
+         'd7181c4c6d88c7bd34061214ee350d73'
          'f5744dc4820725b93917e3a24df13da9'
          'a331a81c44aed062a7af6d28542c3d82')
 
