@@ -81,6 +81,13 @@ package() {
     # Install integration files
     install -D -m644 51-usbblaster.rules "${pkgdir}/etc/udev/rules.d/51-usbblaster.rules"
     install -D -m644 quartus.desktop "${pkgdir}/usr/share/applications/quartus.desktop"
+
+    # Add HLS to the system paths
+    mkdir -p "$pkgdir/usr/bin"
+    ln -s "${_alteradir}/hls/bin/i++" "$pkgdir/usr/bin/"
+
+    mkdir -p "$pkgdir/etc/ld.so.conf.d"
+    echo "${_alteradir}/hls/host/linux64/lib" > "$pkgdir/etc/ld.so.conf.d/quartus.conf"
 }
 
 # vim:set ts=2 sw=2 et:
