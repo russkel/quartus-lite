@@ -6,7 +6,7 @@
 #       is around 13GB.
 #
 pkgname=quartus-lite
-pkgver=17.0.2.602
+pkgver=17.1.1.593
 pkgrel=1
 pkgdesc="Quartus Prime Lite Edition design software for Altera FPGA's. Modular package"
 arch=('x86_64')
@@ -14,7 +14,7 @@ url="http://dl.altera.com/?edition=lite"
 license=('custom')
 
 # base version for when an update needs to be applied
-pkgverbase=17.0.0.595
+pkgverbase=17.1.0.590
 _build_nr_base="${pkgverbase##*.}"
 _build_nr="${pkgver##*.}"
 _alteradir="/opt/altera"
@@ -36,11 +36,11 @@ optdepends=('quartus-lite-max: MAXII, MAXV device support'
            )
            # Pkgnames are taken directly from altera downloads file names
 
-source=("http://download.altera.com/akdlm/software/acdsinst/${pkgver%.*.*}std.2/${_build_nr}/update/QuartusSetup-${pkgver}-linux.run"
+source=("http://download.altera.com/akdlm/software/acdsinst/${pkgver%.*.*}std.1/${_build_nr}/update/QuartusSetup-${pkgver}-linux.run"
   "http://download.altera.com/akdlm/software/acdsinst/${pkgverbase%.*.*}std/${_build_nr_base}/ib_installers/QuartusLiteSetup-${pkgverbase}-linux.run"
 	"quartus.desktop" "51-usbblaster.rules" "quartus.install")
-md5sums=('771248a8a8fc4b0e0d999f23f7c5fa90'
-         '454350830d7b0072396b5f0ded77e18b'
+md5sums=('70e8016ea12cf7835dfcd3b22b1e3153'
+         '8a22e65f15b695e7967a292caa7275f3'
          'd7181c4c6d88c7bd34061214ee350d73'
          'f5744dc4820725b93917e3a24df13da9'
          'a331a81c44aed062a7af6d28542c3d82')
@@ -53,8 +53,8 @@ package() {
     cd "${srcdir}"
 
     # TODO: Make bogus $DISPLAY
-    chmod a+x "QuartusLiteSetup-${pkgverbase}-linux.run"
-    DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --installdir "${pkgdir}/${_alteradir}"
+    chmod a+x "QuartusLiteSetup-${pkgverbase}-linux.run" "QuartusSetup-${pkgver}-linux.run"
+    DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --accept_eula 1 --installdir "${pkgdir}/${_alteradir}"
 
     # Remove uninstaller and install logs since we have a working package management
     rm -r "${pkgdir}${_alteradir}/uninstall"
@@ -81,6 +81,13 @@ package() {
     # Install integration files
     install -D -m644 51-usbblaster.rules "${pkgdir}/etc/udev/rules.d/51-usbblaster.rules"
     install -D -m644 quartus.desktop "${pkgdir}/usr/share/applications/quartus.desktop"
+
+    # Add HLS to the system paths
+    mkdir -p "$pkgdir/usr/bin"
+    ln -s "${_alteradir}/hls/bin/i++" "$pkgdir/usr/bin/"
+
+    mkdir -p "$pkgdir/etc/ld.so.conf.d"
+    echo "${_alteradir}/hls/host/linux64/lib" > "$pkgdir/etc/ld.so.conf.d/quartus.conf"
 }
 
 # vim:set ts=2 sw=2 et:
