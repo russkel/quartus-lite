@@ -49,11 +49,16 @@ md5sums=('70e8016ea12cf7835dfcd3b22b1e3153'
 install='quartus.install'
 PKGEXT=".pkg.tar" # Do not compress
 
+prepare() {
+    cd "${srcdir}"
+
+    chmod a+x "QuartusLiteSetup-${pkgverbase}-linux.run" "QuartusSetup-${pkgver}-linux.run"
+}
+
 package() {
     cd "${srcdir}"
 
     # TODO: Make bogus $DISPLAY
-    chmod a+x "QuartusLiteSetup-${pkgverbase}-linux.run" "QuartusSetup-${pkgver}-linux.run"
     DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --accept_eula 1 --installdir "${pkgdir}/${_alteradir}"
 
     # Remove uninstaller and install logs since we have a working package management
