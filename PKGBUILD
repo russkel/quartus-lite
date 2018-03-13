@@ -25,7 +25,7 @@ depends=('desktop-file-utils' 'expat' 'fontconfig' 'freetype2'
    'util-linux' 'ncurses' 'zlib' 'libx11' 'libxau'
    'libxdmcp' 'libxext' 'libxft' 'libxrender' 'libxt' 'libxtst')
 
-#makedepends=('bash')
+makedepends=('inotify-tools')
 
 optdepends=('quartus-lite-max: MAXII, MAXV device support'
             'quartus-lite-max10: MAX10 device support'
@@ -58,8 +58,13 @@ prepare() {
 package() {
     cd "${srcdir}"
 
-    # TODO: Make bogus $DISPLAY
-    DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --accept_eula 1 --installdir "${pkgdir}/${_alteradir}"
+    # FIXME: Create log dir for the following workaround
+    mkdir -p "${pkgdir}${_alteradir}/logs"
+
+    DISPLAY="" ./"QuartusLiteSetup-${pkgverbase}-linux.run" --mode unattended --unattendedmodeui none --accept_eula 1 --installdir "${pkgdir}/${_alteradir}" &
+    # FIXME: Installer doesn't finish, as a workaround kill it as soon as the install log is created
+    inotifywait -qq -e create "${pkgdir}${_alteradir}/logs" &&
+    killall "QuartusLiteSetup-${pkgverbase}-linux.run"
 
     # Remove uninstaller and install logs since we have a working package management
     rm -r "${pkgdir}${_alteradir}/uninstall"
