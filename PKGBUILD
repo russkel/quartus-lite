@@ -46,7 +46,7 @@ md5sums=('70e8016ea12cf7835dfcd3b22b1e3153'
          'f5744dc4820725b93917e3a24df13da9'
          'a331a81c44aed062a7af6d28542c3d82')
 
-#options=('strip' 'upx') # Stripping and UPX will takes ages, I'd avoid it.
+options=('!strip' '!upx') # Stripping and UPX will takes ages, I'd avoid it.
 install='quartus.install'
 PKGEXT=".pkg.tar" # Do not compress
 
