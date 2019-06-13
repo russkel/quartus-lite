@@ -66,7 +66,7 @@ package() {
         --unattendedmodeui none --accept_eula 1 --installdir "${pkgdir}/${_alteradir}" &
     # FIXME: Installer doesn't finish, as a workaround kill it as soon as the install log is created
     inotifywait -qq -e create "${pkgdir}${_alteradir}/logs" &&
-    killall "QuartusLiteSetup-${pkgverbase}-linux.run"
+    pkill -f "QuartusLiteSetup-${pkgverbase}-linux.run"
 
     # Remove uninstaller and install logs since we have a working package management
     rm -r "${pkgdir}${_alteradir}/uninstall"
